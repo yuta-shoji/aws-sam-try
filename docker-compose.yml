@@ -1,0 +1,32 @@
+services:
+  dynamodb-local:
+    container_name: dynamodb-local
+    image: amazon/dynamodb-local
+    ports:
+      - 8000:8000
+    command: -jar DynamoDBLocal.jar -dbPath /data -sharedDb
+    volumes:
+      - dynamodb-volume
+    networks:
+      - sam-try-network
+
+  dynamodb-admin:
+    container_name: dynamodb-admin
+    image: aaronshaf/dynamodb-admin:latest
+    environment:
+      - DYNAMO_ENDPOINT=http://dynamodb-local:8000
+    ports:
+      - 8001:8001
+    depends_on:
+      - dynamodb-local
+    networks:
+      - sam-try-network
+
+volumes:
+  dynamodb-volume:
+    name: dynamodb-volume
+
+networks:
+  sam-try-network:
+    driver: bridge
+    name: sam-try-network
