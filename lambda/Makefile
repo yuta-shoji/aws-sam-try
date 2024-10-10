@@ -1,6 +1,8 @@
 sam-local:
-	sam build
-	sam local start-api --docker-network excel-post-try_excel-management
+	DOCKER_HOST=$(shell docker context inspect colima | jq -r '.[0].Endpoints.docker.Host') && \
+	export DOCKER_HOST && \
+	sam build && \
+	sam local start-api --docker-network sam-try-network
 
 sam-deploy:
 	sam build
@@ -11,7 +13,7 @@ sam-deploy:
         echo "バケット $(S3_BUCKET) は既に存在します。クリーンナップします。"; \
         aws s3 rm s3://$(S3_BUCKET) --recursive; \
     fi
-	sam deploy --s3-bucket ogata-sam-lambda --capabilities CAPABILITY_IAM --no-confirm-changeset --no-fail-on-empty-changeset
+	sam deploy --s3-bucket $(S3_BUCKET) --no-confirm-changeset
 
 sam-delete:
 	sam delete --stack-name temp-ogata-sam
